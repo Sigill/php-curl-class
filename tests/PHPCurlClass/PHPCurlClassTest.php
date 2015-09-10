@@ -408,6 +408,19 @@ class CurlTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('foo=bar&file=%40not-a-file', $test->curl->response);
     }
 
+    public function testPostRedirectGet()
+    {
+        // Deny post-redirect-get
+        $test = new Test();
+        $test->curl->setOpt(CURLOPT_FOLLOWLOCATION, true);
+        $this->assertEquals('Redirected: POST', $test->server('post_redirect_get', 'POST', array(), false));
+
+        // Allow post-redirect-get
+        $test = new Test();
+        $test->curl->setOpt(CURLOPT_FOLLOWLOCATION, true);
+        $this->assertEquals('Redirected: GET', $test->server('post_redirect_get', 'POST', array(), true));
+    }
+
     public function testPutRequestMethod()
     {
         $test = new Test();

@@ -136,6 +136,16 @@ curl_close($curl->curl);
 ```
 
 ```php
+// Perform a post-redirect-get request (POST data and follow 303 redirections using GET requests).
+$curl = new Curl();
+$curl->setOpt(CURLOPT_FOLLOWLOCATION, true);¬
+$curl->post('http://www.example.com/login/', array(
+    'username' => 'myusername',
+    'password' => 'mypassword',
+), true);
+```
+
+```php
 require __DIR__ . '/vendor/autoload.php';
 
 use \Curl\MultiCurl;
@@ -192,7 +202,7 @@ Curl::head($url, $data = array())
 Curl::headerCallback($ch, $header)
 Curl::options($url, $data = array())
 Curl::patch($url, $data = array())
-Curl::post($url, $data = array())
+Curl::post($url, $data = array(), $post_redirect_get = false)
 Curl::progress($callback)
 Curl::put($url, $data = array())
 Curl::setBasicAuthentication($username, $password = '')
@@ -229,7 +239,7 @@ MultiCurl::addGet($url, $data = array())
 MultiCurl::addHead($url, $data = array())
 MultiCurl::addOptions($url, $data = array())
 MultiCurl::addPatch($url, $data = array())
-MultiCurl::addPost($url, $data = array())
+MultiCurl::addPost($url, $data = array(), $post_redirect_get = false)
 MultiCurl::addPut($url, $data = array())
 MultiCurl::beforeSend($callback)
 MultiCurl::close()

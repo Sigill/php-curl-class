@@ -505,18 +505,21 @@ class Curl
      * @access public
      * @param  $url
      * @param  $data
+     * @param  $post_redirect_get If true, will cause 303 redirections to be followed using GET requests (default: false).
+     * Note: redirections are only followed if the CURLOPT_FOLLOWLOCATION option is set to true.
      *
      * @return string
      */
-    public function post($url, $data = array())
+    public function post($url, $data = array(), $post_redirect_get = false)
     {
         if (is_array($url)) {
+            $post_redirect_get = (bool)$data;
             $data = $url;
             $url = $this->baseUrl;
         }
 
         $this->setURL($url);
-        $this->setOpt(CURLOPT_CUSTOMREQUEST, 'POST');
+        $this->setOpt(CURLOPT_CUSTOMREQUEST, $post_redirect_get ? null : 'POST');
         $this->setOpt(CURLOPT_POST, true);
         $this->setOpt(CURLOPT_POSTFIELDS, $this->buildPostData($data));
         return $this->exec();
