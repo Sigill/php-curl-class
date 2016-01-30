@@ -408,6 +408,9 @@ class CurlTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('foo=bar&file=%40not-a-file', $test->curl->response);
     }
 
+    /**
+     * @requires PHP 5.5.11
+     */
     public function testPostRedirectGet()
     {
         // Deny post-redirect-get

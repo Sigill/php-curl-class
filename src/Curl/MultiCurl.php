@@ -191,8 +191,11 @@ class MultiCurl
      * @access public
      * @param  $url
      * @param  $data
-     * @param  $post_redirect_get If true, will cause 303 redirections to be followed using GET requests (default: false).
-     * Note: redirections are only followed if the CURLOPT_FOLLOWLOCATION option is set to true.
+     * @param  $post_redirect_get If true, will cause 303 redirections to be followed using
+     * GET requests (default: false).
+     * Notes:
+     *   - This option is only available for PHP >= 5.5.11.
+     *   - Redirections are only followed if the CURLOPT_FOLLOWLOCATION option is set to true.
      *
      * @return object
      */
@@ -211,7 +214,20 @@ class MultiCurl
         }
 
         $curl->setURL($url);
-        $curl->setOpt(CURLOPT_CUSTOMREQUEST, $post_redirect_get ? null : 'POST');
+
+        /*
+         * https://github.com/php/php-src/pull/531
+         * http://php.net/ChangeLog-5.php#5.5.11
+         */
+        if ($post_redirect_get && (version_compare(PHP_VERSION, '5.5.11') < 0))
+        {
+            trigger_error('php-curl-class does not support post-redirect-get requests for PHP <= 5.5.11.',
+                E_USER_WARNING);
+        }
+
+        $custom_request = ($post_redirect_get && (version_compare(PHP_VERSION, '5.5.11') >= 0)) ? null : 'POST';
+        $curl->setOpt(CURLOPT_CUSTOMREQUEST, $custom_request);
+
         $curl->setOpt(CURLOPT_POST, true);
         $curl->setOpt(CURLOPT_POSTFIELDS, $curl->buildPostData($data));
         $this->addHandle($curl);
