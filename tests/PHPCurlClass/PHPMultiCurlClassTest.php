@@ -2225,9 +2225,6 @@ class MultiCurlTest extends PHPUnit_Framework_TestCase
         $this->assertFalse(is_resource($multi_curl->multiCurl));
     }
 
-    /**
-     * @requires PHP 5.5.11
-     */
     public function testMultiPostRedirectGet()
     {
         // Deny post-redirect-get

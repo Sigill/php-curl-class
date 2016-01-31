@@ -506,12 +506,18 @@ class Curl
      * @param  $url
      * @param  $data
      * @param  $post_redirect_get If true, will cause 303 redirections to be followed using
-     * GET requests (default: false).
-     * Notes:
-     *   - This option is only available for PHP >= 5.5.11.
-     *   - Redirections are only followed if the CURLOPT_FOLLOWLOCATION option is set to true.
+     *     GET requests (default: false).
+     *     Notes:
+     *       - Redirections are only followed if the CURLOPT_FOLLOWLOCATION option is set to true.
+     *       - When reusing a Curl object, you need to make sure the CURLOPT_CUSTOMREQUEST option
+     *         is not set. Starting with PHP 5.5.11, you can set it to null (see [1], [2]).
+     *         Before 5.5.11, or with HHVM, it is not possible to reuse an existing Curl object
+     *         where the CUSTOMREQUEST option as been set.
      *
      * @return string
+     *
+     * [1] https://github.com/php/php-src/pull/531
+     * [2] http://php.net/ChangeLog-5.php#5.5.11
      */
     public function post($url, $data = array(), $post_redirect_get = false)
     {
@@ -524,17 +530,12 @@ class Curl
         $this->setURL($url);
 
         /*
-         * https://github.com/php/php-src/pull/531
-         * http://php.net/ChangeLog-5.php#5.5.11
+         * For post-redirect-get requests, the CURLOPT_CUSTOMREQUEST option must not
+         * be set, otherwise cURL will perform POST requests for redirections.
          */
-        if ($post_redirect_get && (version_compare(PHP_VERSION, '5.5.11') < 0))
-        {
-            trigger_error('php-curl-class does not support post-redirect-get requests for PHP <= 5.5.11.',
-                E_USER_WARNING);
+        if (!$post_redirect_get) {
+            $this->setOpt(CURLOPT_CUSTOMREQUEST, 'POST');
         }
-
-        $custom_request = ($post_redirect_get && (version_compare(PHP_VERSION, '5.5.11') >= 0)) ? null : 'POST';
-        $this->setOpt(CURLOPT_CUSTOMREQUEST, $custom_request);
 
         $this->setOpt(CURLOPT_POST, true);
         $this->setOpt(CURLOPT_POSTFIELDS, $this->buildPostData($data));
