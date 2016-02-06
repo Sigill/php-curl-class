@@ -2231,7 +2231,7 @@ class MultiCurlTest extends PHPUnit_Framework_TestCase
         $multi_curl = new MultiCurl(Test::TEST_URL);
         $multi_curl->setOpt(CURLOPT_FOLLOWLOCATION, true);
         $multi_curl->setHeader('X-DEBUG-TEST', 'post_redirect_get');
-        $multi_curl->addPost(array(), false)->complete(function($instance) {
+        $multi_curl->addPost(array('redirect' => 303), false)->complete(function($instance) {
             PHPUnit_Framework_Assert::assertEquals('Redirected: POST', $instance->response);
         });
         $multi_curl->start();
@@ -2240,7 +2240,43 @@ class MultiCurlTest extends PHPUnit_Framework_TestCase
         $multi_curl = new MultiCurl(Test::TEST_URL);
         $multi_curl->setOpt(CURLOPT_FOLLOWLOCATION, true);
         $multi_curl->setHeader('X-DEBUG-TEST', 'post_redirect_get');
-        $multi_curl->addPost(array(), true)->complete(function($instance) {
+        $multi_curl->addPost(array('redirect' => 303), true)->complete(function($instance) {
+            PHPUnit_Framework_Assert::assertEquals('Redirected: GET', $instance->response);
+        });
+        $multi_curl->start();
+
+        // Deny post-redirect-get
+        $multi_curl = new MultiCurl(Test::TEST_URL);
+        $multi_curl->setOpt(CURLOPT_FOLLOWLOCATION, true);
+        $multi_curl->setHeader('X-DEBUG-TEST', 'post_redirect_get');
+        $multi_curl->addPost(array('redirect' => 302), false)->complete(function($instance) {
+            PHPUnit_Framework_Assert::assertEquals('Redirected: POST', $instance->response);
+        });
+        $multi_curl->start();
+
+        // Allow post-redirect-get
+        $multi_curl = new MultiCurl(Test::TEST_URL);
+        $multi_curl->setOpt(CURLOPT_FOLLOWLOCATION, true);
+        $multi_curl->setHeader('X-DEBUG-TEST', 'post_redirect_get');
+        $multi_curl->addPost(array('redirect' => 302), true)->complete(function($instance) {
+            PHPUnit_Framework_Assert::assertEquals('Redirected: GET', $instance->response);
+        });
+        $multi_curl->start();
+
+        // Deny post-redirect-get
+        $multi_curl = new MultiCurl(Test::TEST_URL);
+        $multi_curl->setOpt(CURLOPT_FOLLOWLOCATION, true);
+        $multi_curl->setHeader('X-DEBUG-TEST', 'post_redirect_get');
+        $multi_curl->addPost(array('redirect' => 301), false)->complete(function($instance) {
+            PHPUnit_Framework_Assert::assertEquals('Redirected: POST', $instance->response);
+        });
+        $multi_curl->start();
+
+        // Allow post-redirect-get
+        $multi_curl = new MultiCurl(Test::TEST_URL);
+        $multi_curl->setOpt(CURLOPT_FOLLOWLOCATION, true);
+        $multi_curl->setHeader('X-DEBUG-TEST', 'post_redirect_get');
+        $multi_curl->addPost(array('redirect' => 301), true)->complete(function($instance) {
             PHPUnit_Framework_Assert::assertEquals('Redirected: GET', $instance->response);
         });
         $multi_curl->start();

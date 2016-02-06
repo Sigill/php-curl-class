@@ -413,12 +413,32 @@ class CurlTest extends PHPUnit_Framework_TestCase
         // Deny post-redirect-get
         $test = new Test();
         $test->curl->setOpt(CURLOPT_FOLLOWLOCATION, true);
-        $this->assertEquals('Redirected: POST', $test->server('post_redirect_get', 'POST', array(), false));
+        $this->assertEquals('Redirected: POST', $test->server('post_redirect_get', 'POST', array('redirect' => 303), false));
 
         // Allow post-redirect-get
         $test = new Test();
         $test->curl->setOpt(CURLOPT_FOLLOWLOCATION, true);
-        $this->assertEquals('Redirected: GET', $test->server('post_redirect_get', 'POST', array(), true));
+        $this->assertEquals('Redirected: GET', $test->server('post_redirect_get', 'POST', array('redirect' => 303), true));
+
+        // Deny post-redirect-get
+        $test = new Test();
+        $test->curl->setOpt(CURLOPT_FOLLOWLOCATION, true);
+        $this->assertEquals('Redirected: POST', $test->server('post_redirect_get', 'POST', array('redirect' => 302), false));
+
+        // Allow post-redirect-get
+        $test = new Test();
+        $test->curl->setOpt(CURLOPT_FOLLOWLOCATION, true);
+        $this->assertEquals('Redirected: GET', $test->server('post_redirect_get', 'POST', array('redirect' => 302), true));
+
+        // Deny post-redirect-get
+        $test = new Test();
+        $test->curl->setOpt(CURLOPT_FOLLOWLOCATION, true);
+        $this->assertEquals('Redirected: POST', $test->server('post_redirect_get', 'POST', array('redirect' => 301), false));
+
+        // Allow post-redirect-get
+        $test = new Test();
+        $test->curl->setOpt(CURLOPT_FOLLOWLOCATION, true);
+        $this->assertEquals('Redirected: GET', $test->server('post_redirect_get', 'POST', array('redirect' => 301), true));
     }
 
     public function testPutRequestMethod()

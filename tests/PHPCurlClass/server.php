@@ -270,14 +270,22 @@ if ($test === 'http_basic_auth') {
         echo "Redirected: $request_method";
     } else {
         if ($request_method == 'POST') {
-            if (function_exists('http_response_code')) {
-                http_response_code(303);
+            if (!isset($_POST['redirect'])) {
+                http_response_code(404);
+                echo "The type of redirect must be specified in the \"redirect\" field of the POSTed data";
             } else {
-                header('HTTP/1.1 303 See Other');
-            }
+                $redirect_method = $_POST['redirect'];
 
-            header('Location: ?redirect');
+                if (in_array($redirect_method, array('301', '302', '303'))) {
+                    http_response_code((int)$redirect_method);
+                    header('Location: ?redirect');
+                } else {
+                    http_response_code(404);
+                    echo "Unsupported redirect method: $redirect_method";
+                }
+            }
         } else {
+            http_response_code(404);
             echo "Request method is $request_method, but POST was expected";
         }
     }
