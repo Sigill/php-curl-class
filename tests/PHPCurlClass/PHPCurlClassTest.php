@@ -410,15 +410,15 @@ class CurlTest extends PHPUnit_Framework_TestCase
 
     public function testPostRedirectGet()
     {
-        // Deny post-redirect-get
+        // Follow 303 redirection with GET
         $test = new Test();
         $test->curl->setOpt(CURLOPT_FOLLOWLOCATION, true);
-        $this->assertEquals('Redirected: POST', $test->server('post_redirect_get', 'POST', array(), false));
+        $this->assertEquals('Redirected: GET', $test->server('post_redirect_get', 'POST'));
 
-        // Allow post-redirect-get
+        // Follow 303 redirection with POST
         $test = new Test();
         $test->curl->setOpt(CURLOPT_FOLLOWLOCATION, true);
-        $this->assertEquals('Redirected: GET', $test->server('post_redirect_get', 'POST', array(), true));
+        $this->assertEquals('Redirected: POST', $test->server('post_redirect_get', 'POST', array(), true));
     }
 
     public function testPutRequestMethod()
@@ -551,6 +551,7 @@ class CurlTest extends PHPUnit_Framework_TestCase
         $this->assertFalse(is_bool($download_test->curl->rawResponse));
 
         // Remove server file.
+        $download_test = new Test();
         $this->assertEquals('true', $download_test->server('upload_cleanup', 'POST', array(
             'file_path' => $uploaded_file_path,
         )));
@@ -2470,78 +2471,78 @@ class CurlTest extends PHPUnit_Framework_TestCase
     public function testRequestMethodSuccessiveGetRequests()
     {
         $test = new Test();
-        Helper\test($test, 'GET', 'POST');
-        Helper\test($test, 'GET', 'PUT');
-        Helper\test($test, 'GET', 'PATCH');
-        Helper\test($test, 'GET', 'DELETE');
-        Helper\test($test, 'GET', 'HEAD');
-        Helper\test($test, 'GET', 'OPTIONS');
+        $test->chain_requests('GET', 'POST');
+        $test->chain_requests('GET', 'PUT');
+        $test->chain_requests('GET', 'PATCH');
+        $test->chain_requests('GET', 'DELETE');
+        $test->chain_requests('GET', 'HEAD');
+        $test->chain_requests('GET', 'OPTIONS');
     }
 
     public function testRequestMethodSuccessivePostRequests()
     {
         $test = new Test();
-        Helper\test($test, 'POST', 'GET');
-        Helper\test($test, 'POST', 'PUT');
-        Helper\test($test, 'POST', 'PATCH');
-        Helper\test($test, 'POST', 'DELETE');
-        Helper\test($test, 'POST', 'HEAD');
-        Helper\test($test, 'POST', 'OPTIONS');
+        $test->chain_requests('POST', 'GET');
+        $test->chain_requests('POST', 'PUT');
+        $test->chain_requests('POST', 'PATCH');
+        $test->chain_requests('POST', 'DELETE');
+        $test->chain_requests('POST', 'HEAD');
+        $test->chain_requests('POST', 'OPTIONS');
     }
 
     public function testRequestMethodSuccessivePutRequests()
     {
         $test = new Test();
-        Helper\test($test, 'PUT', 'GET');
-        Helper\test($test, 'PUT', 'POST');
-        Helper\test($test, 'PUT', 'PATCH');
-        Helper\test($test, 'PUT', 'DELETE');
-        Helper\test($test, 'PUT', 'HEAD');
-        Helper\test($test, 'PUT', 'OPTIONS');
+        $test->chain_requests('PUT', 'GET');
+        $test->chain_requests('PUT', 'POST');
+        $test->chain_requests('PUT', 'PATCH');
+        $test->chain_requests('PUT', 'DELETE');
+        $test->chain_requests('PUT', 'HEAD');
+        $test->chain_requests('PUT', 'OPTIONS');
     }
 
     public function testRequestMethodSuccessivePatchRequests()
     {
         $test = new Test();
-        Helper\test($test, 'PATCH', 'GET');
-        Helper\test($test, 'PATCH', 'POST');
-        Helper\test($test, 'PATCH', 'PUT');
-        Helper\test($test, 'PATCH', 'DELETE');
-        Helper\test($test, 'PATCH', 'HEAD');
-        Helper\test($test, 'PATCH', 'OPTIONS');
+        $test->chain_requests('PATCH', 'GET');
+        $test->chain_requests('PATCH', 'POST');
+        $test->chain_requests('PATCH', 'PUT');
+        $test->chain_requests('PATCH', 'DELETE');
+        $test->chain_requests('PATCH', 'HEAD');
+        $test->chain_requests('PATCH', 'OPTIONS');
     }
 
     public function testRequestMethodSuccessiveDeleteRequests()
     {
         $test = new Test();
-        Helper\test($test, 'DELETE', 'GET');
-        Helper\test($test, 'DELETE', 'POST');
-        Helper\test($test, 'DELETE', 'PUT');
-        Helper\test($test, 'DELETE', 'PATCH');
-        Helper\test($test, 'DELETE', 'HEAD');
-        Helper\test($test, 'DELETE', 'OPTIONS');
+        $test->chain_requests('DELETE', 'GET');
+        $test->chain_requests('DELETE', 'POST');
+        $test->chain_requests('DELETE', 'PUT');
+        $test->chain_requests('DELETE', 'PATCH');
+        $test->chain_requests('DELETE', 'HEAD');
+        $test->chain_requests('DELETE', 'OPTIONS');
     }
 
     public function testRequestMethodSuccessiveHeadRequests()
     {
         $test = new Test();
-        Helper\test($test, 'HEAD', 'GET');
-        Helper\test($test, 'HEAD', 'POST');
-        Helper\test($test, 'HEAD', 'PUT');
-        Helper\test($test, 'HEAD', 'PATCH');
-        Helper\test($test, 'HEAD', 'DELETE');
-        Helper\test($test, 'HEAD', 'OPTIONS');
+        $test->chain_requests('HEAD', 'GET');
+        $test->chain_requests('HEAD', 'POST');
+        $test->chain_requests('HEAD', 'PUT');
+        $test->chain_requests('HEAD', 'PATCH');
+        $test->chain_requests('HEAD', 'DELETE');
+        $test->chain_requests('HEAD', 'OPTIONS');
     }
 
     public function testRequestMethodSuccessiveOptionsRequests()
     {
         $test = new Test();
-        Helper\test($test, 'OPTIONS', 'GET');
-        Helper\test($test, 'OPTIONS', 'POST');
-        Helper\test($test, 'OPTIONS', 'PUT');
-        Helper\test($test, 'OPTIONS', 'PATCH');
-        Helper\test($test, 'OPTIONS', 'DELETE');
-        Helper\test($test, 'OPTIONS', 'HEAD');
+        $test->chain_requests('OPTIONS', 'GET');
+        $test->chain_requests('OPTIONS', 'POST');
+        $test->chain_requests('OPTIONS', 'PUT');
+        $test->chain_requests('OPTIONS', 'PATCH');
+        $test->chain_requests('OPTIONS', 'DELETE');
+        $test->chain_requests('OPTIONS', 'HEAD');
     }
 
     public function testMemoryLeak()

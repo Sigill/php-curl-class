@@ -269,7 +269,7 @@ if ($test === 'http_basic_auth') {
     if (isset($_GET['redirect'])) {
         echo "Redirected: $request_method";
     } else {
-        if ($request_method == 'POST') {
+        if ($request_method === 'POST') {
             if (function_exists('http_response_code')) {
                 http_response_code(303);
             } else {

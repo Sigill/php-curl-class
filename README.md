@@ -53,7 +53,33 @@ $curl->post('http://www.example.com/login/', array(
     'username' => 'myusername',
     'password' => 'mypassword',
 ));
+
+// Perform a post-redirect-get request (POST data and follow 303 redirections using GET requests).
+$curl = new Curl();
+$curl->setOpt(CURLOPT_FOLLOWLOCATION, true);¬
+$curl->post('http://www.example.com/login/', array(
+    'username' => 'myusername',
+    'password' => 'mypassword',
+));
+
+// POST data and follow 303 redirections by POSTing data again.
+// Please note that 303 redirections should not be handled this way:
+// https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.3.4
+$curl = new Curl();
+$curl->setOpt(CURLOPT_FOLLOWLOCATION, true);¬
+$curl->post('http://www.example.com/login/', array(
+    'username' => 'myusername',
+    'password' => 'mypassword',
+), false);
 ```
+
+A POST request performs by default a post-redirect-get (see above). Other request methods force an option which conflicts with the post-redirect-get behavior. It means that, a post-redirect-get can't be performed using a Curl object that has already been used for other requests. If you really need to, the best solution is to reset the `CURLOPT_CUSTOMREQUEST` option:
+
+```php
+$this->setOpt(CURLOPT_CUSTOMREQUEST, 'POST');
+```
+
+Be advised that, due to technical limitations of PHP engines <5.5.11 and HHVM, this solution will not work. In such case, you can set the last parameter of the `post()` method to `false`, which will force the POST method to be used (but prevent you to perform a post-redirect-get).
 
 ```php
 $curl = new Curl();
@@ -133,16 +159,6 @@ $curl->close();
 // Example access to curl object.
 curl_set_opt($curl->curl, CURLOPT_USERAGENT, 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1');
 curl_close($curl->curl);
-```
-
-```php
-// Perform a post-redirect-get request (POST data and follow 303 redirections using GET requests).
-$curl = new Curl();
-$curl->setOpt(CURLOPT_FOLLOWLOCATION, true);¬
-$curl->post('http://www.example.com/login/', array(
-    'username' => 'myusername',
-    'password' => 'mypassword',
-), true);
 ```
 
 ```php

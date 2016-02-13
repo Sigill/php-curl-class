@@ -505,35 +505,36 @@ class Curl
      * @access public
      * @param  $url
      * @param  $data
-     * @param  $post_redirect_get If true, will cause 303 redirections to be followed using
-     *     GET requests (default: false).
+     * @param  $follow_303_with_post If true, will cause 303 redirections to be followed using
+     *     a POST request (default: false).
      *     Notes:
      *       - Redirections are only followed if the CURLOPT_FOLLOWLOCATION option is set to true.
-     *       - When reusing a Curl object, you need to make sure the CURLOPT_CUSTOMREQUEST option
-     *         is not set. Starting with PHP 5.5.11, you can set it to null (see [1], [2]).
-     *         Before 5.5.11, or with HHVM, it is not possible to reuse an existing Curl object
-     *         where the CUSTOMREQUEST option as been set.
+     *       - According to the HTTP specs (see [1]), a 303 redirection should be followed using
+     *         the GET method. 301 and 302 must not.
+     *       - In order to force a 303 redirection to be performed using the same method, the
+     *         underlying cURL object must be set in a special state (the CURLOPT_CURSTOMREQUEST
+     *         option must be set to the method to use after the redirection). Due to a limitation
+     *         of the cURL extension of PHP < 5.5.11 ([2], [3]) and of HHVM, it is not possible
+     *         to restore this option, which means you wont be able to reuse an existing cURL
+     *         object and restore this behavior.
      *
      * @return string
      *
-     * [1] https://github.com/php/php-src/pull/531
-     * [2] http://php.net/ChangeLog-5.php#5.5.11
+     * [1] https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.3.2
+     * [2] https://github.com/php/php-src/pull/531
+     * [3] http://php.net/ChangeLog-5.php#5.5.11
      */
-    public function post($url, $data = array(), $post_redirect_get = false)
+    public function post($url, $data = array(), $follow_303_with_post = false)
     {
         if (is_array($url)) {
-            $post_redirect_get = (bool)$data;
+            $follow_303_with_post = (bool)$data;
             $data = $url;
             $url = $this->baseUrl;
         }
 
         $this->setURL($url);
 
-        /*
-         * For post-redirect-get requests, the CURLOPT_CUSTOMREQUEST option must not
-         * be set, otherwise cURL will perform POST requests for redirections.
-         */
-        if (!$post_redirect_get) {
+        if ($follow_303_with_post) {
             $this->setOpt(CURLOPT_CUSTOMREQUEST, 'POST');
         }
 
