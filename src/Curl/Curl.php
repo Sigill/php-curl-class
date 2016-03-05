@@ -515,8 +515,8 @@ class Curl
      *         underlying cURL object must be set in a special state (the CURLOPT_CURSTOMREQUEST
      *         option must be set to the method to use after the redirection). Due to a limitation
      *         of the cURL extension of PHP < 5.5.11 ([2], [3]) and of HHVM, it is not possible
-     *         to restore this option, which means you wont be able to reuse an existing cURL
-     *         object and restore this behavior.
+     *         to reset this option. Using these PHP engines, it is therefore impossible to
+     *         restore this behavior on an existing php-curl-class Curl object.
      *
      * @return string
      *
@@ -536,6 +536,18 @@ class Curl
 
         if ($follow_303_with_post) {
             $this->setOpt(CURLOPT_CUSTOMREQUEST, 'POST');
+        } else {
+            if (isset($this->options[CURLOPT_CUSTOMREQUEST])) {
+                if ((version_compare(PHP_VERSION, '5.5.11') < 0) || defined('HHVM_VERSION')) {
+                    trigger_error('Due to technical limitations of PHP <= 5.5.11 and HHVM, it is not possible to '
+                        . 'perform a post-redirect-get request using a php-curl-class Curl object that '
+                        . 'has already been used to perform other types of requests. Either use a new '
+                        . 'php-curl-class Curl object or upgrade your PHP engine.',
+                        E_USER_ERROR);
+                } else {
+                    $this->setOpt(CURLOPT_CUSTOMREQUEST, null);
+                }
+            }
         }
 
         $this->setOpt(CURLOPT_POST, true);

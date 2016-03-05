@@ -73,13 +73,7 @@ $curl->post('http://www.example.com/login/', array(
 ), false);
 ```
 
-A POST request performs by default a post-redirect-get (see above). Other request methods force an option which conflicts with the post-redirect-get behavior. It means that, a post-redirect-get can't be performed using a Curl object that has already been used for other requests. If you really need to, the best solution is to reset the `CURLOPT_CUSTOMREQUEST` option:
-
-```php
-$this->setOpt(CURLOPT_CUSTOMREQUEST, 'POST');
-```
-
-Be advised that, due to technical limitations of PHP engines <5.5.11 and HHVM, this solution will not work. In such case, you can set the last parameter of the `post()` method to `false`, which will force the POST method to be used (but prevent you to perform a post-redirect-get).
+A POST request performs by default a post-redirect-get (see above). Other request methods force an option which conflicts with the post-redirect-get behavior. Due to technical limitations of PHP engines <5.5.11 and HHVM, it is not possible to reset this option. It is therefore impossible to perform a post-redirect-get request using a php-curl-class Curl object that has already been used to perform other types of requests. Either use a new php-curl-class Curl object or upgrade your PHP engine.
 
 ```php
 $curl = new Curl();

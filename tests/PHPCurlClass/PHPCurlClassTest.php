@@ -419,6 +419,34 @@ class CurlTest extends PHPUnit_Framework_TestCase
         $test = new Test();
         $test->curl->setOpt(CURLOPT_FOLLOWLOCATION, true);
         $this->assertEquals('Redirected: POST', $test->server('post_redirect_get', 'POST', array(), true));
+
+        // On compatible PHP engines, ensure that it is possible to reuse an existing Curl object
+        if ((version_compare(PHP_VERSION, '5.5.11') > 0) && !defined('HHVM_VERSION')) {
+            $this->assertEquals('Redirected: GET', $test->server('post_redirect_get', 'POST'));
+        }
+    }
+
+    public function testPostRedirectGetReuseObjectIncompatibleEngine()
+    {
+        if ((version_compare(PHP_VERSION, '5.5.11') > 0) && !defined('HHVM_VERSION')) {
+            $this->markTestSkipped('This test is not applicable to this platform.');
+        }
+
+        try {
+            // Follow 303 redirection with POST
+            $test = new Test();
+            $test->curl->setOpt(CURLOPT_FOLLOWLOCATION, true);
+            $test->server('post_redirect_get', 'POST', array(), true);
+
+            // On incompatible PHP engines, reusing an existing Curl object to perform a
+            // post-redirect-get request will trigger a PHP error
+            $test->server('post_redirect_get', 'POST');
+
+            $this->assertTrue(false,
+                'Reusing an existing Curl object on incompatible PHP engines shall trigger an error.');
+        } catch (PHPUnit_Framework_Error $e) {
+            $this->assertTrue(true);
+        }
     }
 
     public function testPutRequestMethod()
